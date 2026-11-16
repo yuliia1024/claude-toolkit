@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "node",
+  "version": "0.1.1",
+  "description": "NestJS backend workflows: requirements, codebase analysis, sliced task planning, gated implementation and rule-based review, plus bug fixing, tests, e2e generation, Postman collections and structure alignment.",
+  "author": {
+    "name": "Yuliia Kovalenko"
+  },
+  "keywords": [
+    "nestjs",
+    "nodejs",
+    "backend"
+  ]
+}

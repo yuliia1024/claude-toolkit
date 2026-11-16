@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "toolkit",
+  "owner": {
+    "name": "Yuliia Kovalenko"
+  },
+  "description": "A Claude Code toolkit built for real production work across architecture, Node.js backends, security, code quality, and AI engineering.",
+  "plugins": [
+    {
+      "name": "core",
+      "source": "./plugins/core",
+      "description": "Base layer: setup, sync, the rules-loader hook, cove (fact-checking), judge (four-lens review), and cleanup."
+    },
+    {
+      "name": "backend",
+      "source": "./plugins/backend",
+      "description": "Backend basics and API design samples that are not tied to a framework. Suited to learning and simple endpoint work; reach for node when building production NestJS backends."
+    },
+    {
+      "name": "architect",
+      "source": "./plugins/architect",
+      "description": "Turns a spec into architecture: contracts, a data model, tasks ordered in waves, and parallel implementation."
+    },
+    {
+      "name": "node",
+      "source": "./plugins/node",
+      "description": "Production flows for NestJS backends: requirements, tasks that respect the architecture, implementation, review, tests, runtime, TypeScript, and reliability."
+    },
+    {
+      "name": "reviewer",
+      "source": "./plugins/reviewer",
+      "description": "Builds an MR review pipeline tailored to the project under .reviewer/ (init, sync, add-agent, review)."
+    },
+    {
+      "name": "security",
+      "source": "./plugins/security",
+      "description": "Security coverage: a read-only audit, OWASP Top 10 review, and the security-reviewer agent."
+    },
+    {
+      "name": "ai",
+      "source": "./plugins/ai",
+      "description": "AI engineering support: specialist agents covering architecture, agents, RAG, evals, and security, plus skills on LLM patterns, prompting, context engineering, tools, MCP, provider integration, resilience, observability, and evals."
+    }
+  ]
+}

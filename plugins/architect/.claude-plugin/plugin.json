@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "architect",
+  "version": "0.7.0",
+  "description": "Spec-to-build pipeline for backend features: design a feature as a folder of small role-tagged blocks with endpoint and schema specs kept once in shared files; slice it into wave-ordered task briefs (contracts first); build tasks in parallel with an isolated branch and PR per task or per wave behind test and review gates; run several epics side by side; fix spec-rooted bugs code-then-docs behind two approval gates; and keep the design in step with changing requirements and drifting code.",
+  "author": {
+    "name": "Yuliia Kovalenko"
+  },
+  "keywords": [
+    "solution-design",
+    "backend-architecture",
+    "adr",
+    "api-contract",
+    "data-model",
+    "task-planning",
+    "waves",
+    "parallel-build",
+    "git-worktree",
+    "drift-audit"
+  ]
+}

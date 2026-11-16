@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "security",
+  "version": "0.1.0",
+  "description": "Read-only application security review: a scanner-first repository sweep, a structured OWASP Top 10 (2021) pass with per-category ratings, and a reviewer agent for individual changes. Never edits reviewed code or contacts production.",
+  "author": {
+    "name": "Yuliia Kovalenko"
+  },
+  "keywords": [
+    "security",
+    "owasp",
+    "audit",
+    "appsec",
+    "authz",
+    "injection"
+  ]
+}

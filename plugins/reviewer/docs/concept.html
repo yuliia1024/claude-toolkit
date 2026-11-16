@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, width=device-width">
+<meta name="color-scheme" content="light dark">
+<title>Reviewer Plugin Deck</title>
+<meta name="description" content="Slides explaining the reviewer plugin: repository-specific review pipelines, how they are generated, and how to tune them.">
+<style>
+:root {
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --text: #1b1f27;
+  --soft: #4f5868;
+  --faint: #8a93a3;
+  --line: #dde1e8;
+  --brand: #2f6fde;
+  --brand-bg: #e8f0fd;
+  --ok: #17845e;
+  --ok-bg: #e2f4ec;
+  --warn: #b5560f;
+  --warn-bg: #fbeee2;
+  --code-font: ui-monospace, Menlo, Consolas, monospace;
+  --body-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1218; --panel: #171c25; --text: #e6e9ef; --soft: #a7b0c0; --faint: #6f7889;
+    --line: #262d3a; --brand: #7aa5ff; --brand-bg: #19253d; --ok: #4cc79a; --ok-bg: #11291f;
+    --warn: #f0a25a; --warn-bg: #2c1f12;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1218; --panel: #171c25; --text: #e6e9ef; --soft: #a7b0c0; --faint: #6f7889;
+  --line: #262d3a; --brand: #7aa5ff; --brand-bg: #19253d; --ok: #4cc79a; --ok-bg: #11291f;
+  --warn: #f0a25a; --warn-bg: #2c1f12;
+}
+*, *::before, *::after { padding: 0; margin: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--text); font: 16px/1.55 var(--body-font);
+  overflow: hidden;
+}
+.deck { position: relative; height: 100vh; width: 100vw; }
+.frame {
+  position: absolute; inset: 0; display: none; overflow-y: auto;
+  padding: 72px 16px 88px;
+}
+.frame.on { display: block; }
+.wrap { max-width: 1000px; margin: 0 auto; display: grid; gap: 22px; }
+.kicker { font: 600 12px/1 var(--code-font); letter-spacing: .12em; text-transform: uppercase; color: var(--brand); }
+h1 { font-size: clamp(34px, 6.5vw, 76px); line-height: 1.02; letter-spacing: -.03em; }
+h2 { font-size: clamp(24px, 3.8vw, 42px); line-height: 1.12; letter-spacing: -.02em; max-width: 26ch; }
+h3 { font-size: 16px; margin-bottom: 6px; }
+p { max-width: 68ch; color: var(--soft); }
+p.big { font-size: clamp(17px, 2vw, 21px); }
+code { font: .88em var(--code-font); background: var(--brand-bg); color: var(--brand); padding: 1px 5px; border-radius: 4px; }
+.cols { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.box { padding: 16px 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); }
+.box.good { border-color: var(--ok); background: var(--ok-bg); }
+.box.bad { border-color: var(--warn); background: var(--warn-bg); }
+.box.blue { border-color: var(--brand); background: var(--brand-bg); }
+.box p { color: var(--text); }
+.tag { display: inline-block; font: 600 11px/1 var(--code-font); text-transform: uppercase; letter-spacing: .08em; padding: 5px 8px; border-radius: 999px; margin-bottom: 10px; background: var(--brand-bg); color: var(--brand); }
+.tag.ok { background: var(--ok-bg); color: var(--ok); }
+.tag.warn { background: var(--warn-bg); color: var(--warn); }
+.mono { font-family: var(--code-font); font-size: 13.5px; white-space: pre-wrap; color: var(--text); }
+.callout { border-left: 4px solid var(--brand); padding: 6px 0 6px 16px; font-size: clamp(18px, 2.2vw, 24px); color: var(--text); font-weight: 600; max-width: 40ch; }
+.callout.warn { border-color: var(--warn); }
+ol.steps { list-style: none; display: grid; gap: 10px; counter-reset: s; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 34px 1fr; align-items: start; gap: 12px; padding: 12px 14px; color: var(--soft); background: var(--panel); border-radius: 10px; border: 1px solid var(--line); }
+ol.steps li::before { content: counter(s); font: 700 14px/30px var(--code-font); text-align: center; border-radius: 50%; background: var(--brand-bg); color: var(--brand); width: 30px; height: 30px; }
+ol.steps b { color: var(--text); }
+.scroll-x { overflow-x: auto; }
+table { font-size: 14.5px; width: 100%; overflow: hidden; border-collapse: collapse; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); }
+th, td { vertical-align: top; text-align: left; border-bottom: 1px solid var(--line); padding: 10px 12px; }
+th { color: var(--faint); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+tr:last-child td { border-bottom: 0; }
+.pipe { gap: 8px; display: flex; align-items: center; flex-wrap: wrap; }
+.pipe .n { font: 13px var(--code-font); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); }
+.pipe .n.hi { border-color: var(--brand); background: var(--brand-bg); }
+.pipe .arr { color: var(--faint); }
+.pipe .group { display: grid; gap: 6px; }
+.bar { position: fixed; inset: auto 0 0 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg); border-top: 1px solid var(--line); }
+.bar button { cursor: pointer; font: inherit; padding: 6px 14px; border-radius: 8px; color: var(--text); border: 1px solid var(--line); background: var(--panel); }
+.bar button:disabled { opacity: .4; cursor: default; }
+.count { font: 13px var(--code-font); color: var(--faint); }
+.track { position: fixed; top: 0; left: 0; height: 3px; background: var(--brand); transition: width .2s; }
+@media (prefers-reduced-motion: reduce) { .track { transition: none; } }
+</style>
+</head>
+<body>
+<div class="track" id="track"></div>
+<main class="deck" id="deck">
+
+<section class="frame" data-title="Intro">
+  <div class="wrap">
+    <div class="kicker">reviewer · claude code plugin</div>
+    <h1>Review bots your team will still read next month.</h1>
+    <p class="big">The plugin studies one repository and writes a review pipeline that knows its files, its
+    conventions and its past bugs — then commits that pipeline into the same repository.</p>
+    <div class="cols">
+      <div class="box blue"><h3><code>/reviewer:init</code></h3><p>survey · ask · write</p></div>
+      <div class="box blue"><h3><code>/reviewer:review</code></h3><p>local dry run</p></div>
+      <div class="box blue"><h3><code>/reviewer:add-agent</code> · <code>/reviewer:sync</code></h3><p>extend · realign</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="frame" data-title="Why">
+  <div class="wrap">
+    <div class="kicker">the problem</div>
+    <h2>Vague comments get ignored — and so do the good ones next to them.</h2>
+    <div class="cols">
+      <div class="box bad"><span class="tag warn">generic bot</span>
+        <p class="mono">Consider edge cases. Make sure error handling is robust. Add tests where appropriate.</p></div>
+      <div class="box good"><span class="tag ok">generated for this repo</span>
+        <p class="mono">src/orders/totals.ts is the only place allowed to round. This change rounds in refunds.ts:52 — a 3-item order now differs from its invoice by 1 cent.
+
+Convention: amounts are integer cents end to end.</p></div>
+    </div>
+    <p>The right-hand comment can be checked in a minute. The left-hand one trains people to scroll past.</p>
+  </div>
+</section>
+
+<section class="frame" data-title="Home">
+  <div class="wrap">
+    <div class="kicker">where it lives</div>
+    <h2>The pipeline is committed next to the code it reviews.</h2>
+    <div class="pipe">
+      <span class="n">MR from <code>feat/refund-rounding</code></span><span class="arr">→</span>
+      <span class="n hi">.reviewer/ on that branch</span><span class="arr">→</span>
+      <span class="n">review of that diff</span>
+    </div>
+    <div class="cols">
+      <div class="box"><h3>Ships together</h3><p>New risk and the reviewer that covers it land in one MR.</p></div>
+      <div class="box"><h3>Fixed in the open</h3><p>Whoever a reviewer annoyed can sharpen its brief in a normal MR.</p></div>
+      <div class="box"><h3>Not centralised</h3><p>A shared pipeline for many repos cannot name any of their files — which removes the whole benefit.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="frame" data-title="Gate">
+  <div class="wrap">
+    <div class="kicker">the failure that matters</div>
+    <h2>A confident reviewer citing a missing file is worse than a vague one.</h2>
+    <div class="callout warn">Before any brief is written, every path, symbol and convention it mentions is checked to exist.</div>
+    <div class="cols">
+      <div class="box"><h3>Blocking</h3><p>A dead path stops generation. It is fixed, not waved through.</p></div>
+      <div class="box"><h3>Honest gaps</h3><p>If the survey found nothing specific, the brief says so and stays general.</p></div>
+      <div class="box"><h3>Also checked</h3><p>Graph acyclic, every reviewer reaches the judge, every brief has a <em>Hands off</em> section, nothing secret.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="frame" data-title="Init">
+  <div class="wrap">
+    <div class="kicker">inside :init</div>
+    <h2>Classify, survey, propose, decide, write, verify.</h2>
+    <ol class="steps">
+      <li><span><b>Classify</b> — new build or established codebase; decides whose rules apply.</span></li>
+      <li><span><b>Survey</b> — six read-only probes; every line carries evidence.</span></li>
+      <li><span><b>Score</b> — catalog marked take / maybe / skip; discovered reviewers proposed.</span></li>
+      <li><span><b>Decide</b> — you answer up to four rounds of questions. Nothing is written before this.</span></li>
+      <li><span><b>Write</b> — briefs in parallel, coordinator last, then <code>pipeline.yml</code>.</span></li>
+      <li><span><b>Gate</b> — any failure goes back to Write.</span></li>
+      <li><span><b>Hand over</b> — tree, graph and a README recording what you declined.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="frame" data-title="Survey">
+  <div class="wrap">
+    <div class="kicker">the survey</div>
+    <h2>Six questions, then stop reading.</h2>
+    <div class="cols">
+      <div class="box"><span class="tag">A · charter</span><p>What does the project say about itself? CLAUDE.md, CONSTITUTION.md, rules, ADRs, manifests.</p></div>
+      <div class="box"><span class="tag">B · conventions</span><p>Which rules does the code visibly follow? Each needs a demonstrating file.</p></div>
+      <div class="box"><span class="tag">C · blast radius</span><p>Where does a wrong value reach a customer, a regulator or another system?</p></div>
+      <div class="box"><span class="tag">D · seams</span><p>Verbatim payloads, API surface, migrations, queues, shared contracts.</p></div>
+      <div class="box"><span class="tag">E · hostile input</span><p>Uploads, webhooks, LLM and OCR output — traced to where they are used.</p></div>
+      <div class="box good"><span class="tag ok">F · history</span><p>Files that change most <em>and</em> get repaired most, straight from git. Cheap and predictive.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="frame" data-title="Mode">
+  <div class="wrap">
+    <div class="kicker">new build vs established</div>
+    <h2>In an existing codebase, the team's own conventions are the yardstick.</h2>
+    <div class="scroll-x"><table>
+      <thead><tr><th></th><th>New build</th><th>Established codebase</th></tr></thead>
+      <tbody>
+        <tr><td>Survey relies on</td><td>rules, docs, intended stack</td><td>the code as it is + CONSTITUTION.md</td></tr>
+        <tr><td>Reviewers enforce</td><td>standards being adopted</td><td>conventions actually followed</td></tr>
+        <tr><td>History probe</td><td>empty — said plainly</td><td>strongest signal</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout">A gap against an outside standard is migration backlog, not a review comment.</div>
+  </div>
+</section>
+
+<section class="frame" data-title="Origins">
+  <div class="wrap">
+    <div class="kicker">origin labels</div>
+    <h2>Some briefs travel between repos. Most should not.</h2>
+    <div class="cols">
+      <div class="box good"><span class="tag ok">stock</span><p>Template plus a few facts. Portable.</p><p class="mono">claims · judge · tests · dependencies · dead-code · accessibility · secrets-and-config</p></div>
+      <div class="box blue"><span class="tag">fitted</span><p>Built from this repo's survey. Never copy elsewhere.</p><p class="mono">authz · contracts · coordinator · correctness · performance · security · ui-state</p></div>
+      <div class="box bad"><span class="tag warn">discovered</span><p>Exists because of something found in this code.</p><p class="mono">money · pii-compliance · api-contract · …</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="frame" data-title="Discovered">
+  <div class="wrap">
+    <div class="kicker">discovered reviewers</div>
+    <h2>Concerns no catalog could predict.</h2>
+    <div class="scroll-x"><table>
+      <thead><tr><th>Survey found</th><th>Reviewer</th></tr></thead>
+      <tbody>
+        <tr><td>Cache entries invalidated by hand across services</td><td><code>cache-coherence</code></td></tr>
+        <tr><td>Mutating endpoints that accept idempotency keys</td><td><code>idempotency-keys</code></td></tr>
+        <tr><td>Recurring scheduling bugs across time zones</td><td><code>clock-and-timezone</code></td></tr>
+        <tr><td>Roles defined in both server policy and client guards</td><td><code>rbac-mirror</code></td></tr>
+        <tr><td>LLM output stored as structured fields</td><td><code>model-output-guard</code></td></tr>
+      </tbody>
+    </table></div>
+    <p><b>Earns a slot only if</b> it would flag a bug none of the chosen reviewers can see. Its name describes the guarded property, never a library.</p>
+  </div>
+</section>
+
+<section class="frame" data-title="Catalog">
+  <div class="wrap">
+    <div class="kicker">the catalog</div>
+    <h2>28 candidates; six to eight make the cut.</h2>
+    <div class="cols">
+      <div class="box blue"><h3>Backbone</h3><p class="mono">coordinator · judge · report</p></div>
+      <div class="box blue"><h3>Baseline</h3><p class="mono">correctness · contracts · claims</p></div>
+      <div class="box"><h3>Data · Security</h3><p class="mono">migrations · data-integrity · background-jobs · security · authz · secrets-and-config</p></div>
+      <div class="box"><h3>Around the change</h3><p class="mono">dead-code · dependencies · docs-drift · regression-scope · rules-conformance · tests</p></div>
+      <div class="box"><h3>Runtime · Frontend</h3><p class="mono">observability · performance · bundle-size · design-fidelity · i18n · ui-state · accessibility</p></div>
+      <div class="box bad"><h3>Discovered examples</h3><p class="mono">money · pii-compliance · api-contract</p></div>
+    </div>
+    <p>Concurrency keeps latency flat, but tokens and reader attention grow with every brief. Overlap is the usual failure: each brief names who owns its neighbours.</p>
+  </div>
+</section>
+
+<section class="frame" data-title="Questions">
+  <div class="wrap">
+    <div class="kicker">you decide</div>
+    <h2>The plugin proposes; you choose.</h2>
+    <ol class="steps">
+      <li><span><b>Whose rules</b> — established codebases only: project conventions, plus shared gaps as info, or shared standards.</span></li>
+      <li><span><b>The set</b> — accept, accept and review the "maybe" list, remove some, or see all 28.</span></li>
+      <li><span><b>Extras</b> — multi-select per group, each with <em>None</em>; irrelevant groups skipped.</span></li>
+      <li><span><b>Budget</b> — reviewer count, model tiers, trigger bounds; costs spelled out in the options.</span></li>
+    </ol>
+    <p>Questions are always in English because they shape committed files. Declined reviewers are recorded and not pushed again without new evidence.</p>
+  </div>
+</section>
+
+<section class="frame" data-title="Run">
+  <div class="wrap">
+    <div class="kicker">per merge request</div>
+    <h2>One router, parallel reviewers, one filter.</h2>
+    <div class="pipe">
+      <span class="n">diff</span><span class="arr">→</span>
+      <span class="n">trigger?</span><span class="arr">→</span>
+      <span class="n hi">coordinator</span><span class="arr">→</span>
+      <span class="group"><span class="n">correctness</span><span class="n">contracts</span><span class="n">authz</span><span class="n">claims</span></span>
+      <span class="arr">→</span><span class="n hi">judge</span><span class="arr">→</span><span class="n">report</span>
+    </div>
+    <div class="cols">
+      <div class="box"><h3>Coordinator alone</h3><p>Writes a routing note every reviewer reads. Files no findings.</p></div>
+      <div class="box"><h3>Reviewers blind to each other</h3><p>So that agreement actually means something.</p></div>
+      <div class="box"><h3>Judge checks premises</h3><p>Is the cited line really what the finding says? Misreads are the main source of false alarms.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="frame" data-title="Tune">
+  <div class="wrap">
+    <div class="kicker">tuning</div>
+    <h2>The judge's removal log tells you what to fix.</h2>
+    <div class="scroll-x"><table>
+      <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Most findings removed</td><td>Tighten the brief's <em>Proof required</em></td></tr>
+        <tr><td>Nothing removed, nothing useful</td><td>Add real paths from the survey</td></tr>
+        <tr><td>Duplicate findings</td><td>Declare the owner in each brief's <em>Hands off</em></td></tr>
+        <tr><td>Mostly style</td><td>Write a proper <em>Hands off</em> section</td></tr>
+        <tr><td>Comments on untouched old code</td><td>Add the new-vs-pre-existing instruction</td></tr>
+      </tbody>
+    </table></div>
+    <p>First run: pick a commit you know introduced a bug. If the pipeline misses that one, it will miss the ones you don't know about.</p>
+  </div>
+</section>
+
+<section class="frame" data-title="Status">
+  <div class="wrap">
+    <div class="kicker">version 0.1.0</div>
+    <h2>Designed and gated. Not yet proven on a live repo.</h2>
+    <div class="cols">
+      <div class="box good"><span class="tag ok">in place</span><p>Four commands, two skills, four reference documents, one agent, a guide and this deck.</p></div>
+      <div class="box bad"><span class="tag warn">caveat</span><p><code>pipeline.yml</code> uses the plugin's own key set. A hosted runner needs a mapping; until then <code>:review</code> runs it locally.</p></div>
+      <div class="box blue"><span class="tag">next</span><p>Point <code>:init</code> at a codebase with years of commits, review the survey it produces, then refine catalog and wording. Details in <code>docs/CHECKLIST.md</code>.</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<nav class="bar" aria-label="Slide navigation">
+  <button type="button" id="prev">← Back</button>
+  <span class="count" id="count" aria-live="polite"></span>
+  <button type="button" id="next">Next →</button>
+</nav>
+<script>
+(() => {
+  const frames = [...document.querySelectorAll('.frame')];
+  const count = document.getElementById('count');
+  const track = document.getElementById('track');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  let at = 0;
+  const fromHash = () => {
+    const n = parseInt(location.hash.slice(1), 10);
+    return Number.isFinite(n) ? Math.min(Math.max(n - 1, 0), frames.length - 1) : 0;
+  };
+  const show = (i) => {
+    at = Math.min(Math.max(i, 0), frames.length - 1);
+    frames.forEach((f, k) => f.classList.toggle('on', k === at));
+    frames[at].scrollTop = 0;
+    count.textContent = (at + 1) + ' / ' + frames.length + ' · ' + (frames[at].dataset.title || '');
+    track.style.width = ((at + 1) / frames.length * 100) + '%';
+    prev.disabled = at === 0;
+    next.disabled = at === frames.length - 1;
+    if (location.hash !== '#' + (at + 1)) history.replaceState(null, '', '#' + (at + 1));
+  };
+  prev.addEventListener('click', () => show(at - 1));
+  next.addEventListener('click', () => show(at + 1));
+  document.addEventListener('keydown', (e) => {
+    const k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ') { e.preventDefault(); show(at + 1); }
+    else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp') { e.preventDefault(); show(at - 1); }
+    else if (k === 'Home') { e.preventDefault(); show(0); }
+    else if (k === 'End') { e.preventDefault(); show(frames.length - 1); }
+  });
+  let x0 = null;
+  document.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 50) show(at + (dx < 0 ? 1 : -1));
+    x0 = null;
+  });
+  window.addEventListener('hashchange', () => show(fromHash()));
+  show(fromHash());
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+---
+paths:
+  - "**/*.module.ts"
+  - "**/*.controller.ts"
+  - "**/*.service.ts"
+  - "**/*.guard.ts"
+  - "**/*.interceptor.ts"
+  - "**/*.pipe.ts"
+  - "**/*.filter.ts"
+  - "**/*.middleware.ts"
+  - "**/*.decorator.ts"
+---
+# Working in NestJS
+- Stick to the NestJS version and HTTP adapter actually installed, and check the global pipes, guards, interceptors, filters, DI tokens, and testing setup before writing code.
+- Controllers deal with transport only; orchestration lives in application services/use cases and business invariants in the domain layer wherever those layers exist.
+- Inject through constructors and give interfaces explicit runtime tokens; providers stay in the module that owns them, which exports only what others need.
+- A circular dependency signals a boundary problem — investigate that before reaching for forwardRef.
+- Pipes validate and transform, guards decide access, interceptors handle cross-cutting wrapping, and filters translate errors for the transport.
+- Being authenticated does not mean being authorized: check tenant and resource ownership at the application boundary, non-HTTP entry points included.
+- Validate nested DTOs, arrays, enums, numeric ranges, and unexpected properties as the API contract dictates.
+- On graceful shutdown, release DB pools, queue consumers, timers, and any other held resources.
+- Unit-test providers with isolated module fixtures and cover HTTP behaviour with integration/e2e setups; swap out external providers so unit tests never hit live systems.

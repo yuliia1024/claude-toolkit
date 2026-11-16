@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "backend",
+  "version": "0.1.0",
+  "description": "Starter Node API plugin for learning: a backend agent, the /backend:endpoint command, and the api-design skill.",
+  "author": {
+    "name": "Yuliia Kovalenko"
+  }
+}

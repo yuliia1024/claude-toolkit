@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "core",
+  "version": "0.3.0",
+  "description": "Foundation plugin: a single project config, rule sync into the project, and an edit-time hook that supplies matching rules. Also bundles debugging, refactoring, testing and review workflows, toolkit validation, answer self-verification (CoVe), a multi-reviewer judge panel and workspace cleanup.",
+  "author": {
+    "name": "Yuliia Kovalenko"
+  }
+}

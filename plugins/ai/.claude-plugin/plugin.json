@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "ai",
+  "version": "0.1.0",
+  "description": "AI engineering: specialist agents for architecture, agents, RAG, evaluation and security; skills for LLM patterns, prompting, context, tools, MCP, provider integration, resilience, observability, RAG, evals and security.",
+  "author": {
+    "name": "Yuliia Kovalenko"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "prompt",
+    "rag",
+    "evals",
+    "agents",
+    "claude",
+    "mcp",
+    "context-engineering",
+    "observability",
+    "security",
+    "evaluation",
+    "provider-integration"
+  ]
+}

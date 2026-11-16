@@ -1,0 +1,16 @@
+{
+  "name": "reviewer",
+  "version": "0.1.0",
+  "description": "Generates a repository-specific merge-request review pipeline in `.reviewer/`: surveys where the code is fragile, lets you pick reviewers from a 28-entry catalog, and writes coordinator, reviewer and judge briefs grounded in verified paths and the team's own conventions. Commands: :init (create), :review (local dry run), :add-agent (extend), :sync (realign). It builds reviewers rather than reviewing code itself.",
+  "author": {
+    "name": "Yuliia Kovalenko"
+  },
+  "keywords": [
+    "code-review",
+    "merge-request",
+    "review-pipeline",
+    "risk-map",
+    "agents",
+    "reviewer"
+  ]
+}
