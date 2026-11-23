@@ -1,0 +1,11 @@
+{
+  "name": "helpdesk-triage",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "node --test dist/"
+  },
+  "devDependencies": { "typescript": "^5.4.5" }
+}

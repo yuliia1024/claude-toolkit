@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review code changes for correctness, security, reliability, maintainability, performance, and test gaps with actionable evidence-based findings.
+description: Review a diff, pull/merge request or pasted code change for correctness, security, reliability, maintainability, performance and test gaps, with evidence-based findings ranked by impact. Use whenever the user asks to review, check or look over a change before merging, or pastes a diff for feedback.
 ---
 # Code review
 Review the diff against the base branch and project conventions. Prioritize findings by user impact.

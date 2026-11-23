@@ -1,0 +1,5 @@
+{
+  "name": "shopfront",
+  "paths": { "architectureDocs": "docs/architecture" },
+  "stacks": { "backend-node": { "enabled": true, "framework": "nestjs", "orm": "typeorm", "paths": ["apps/api/src"] } }
+}

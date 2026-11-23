@@ -129,6 +129,29 @@ echo '{"session_id":"t","tool_input":{"file_path":"src/users/users.controller.ts
   | CLAUDE_PROJECT_DIR=/path/to/project node plugins/core/hooks/rules-loader.mjs
 ```
 
+## Tests and evals
+
+Three levels, cheapest first — all driven by `scripts/run-evals.sh`:
+
+| Level | Command | What it proves | Cost |
+|---|---|---|---|
+| Static | `npm test` / `scripts/run-evals.sh static` | scripts (`validate-architecture`, `rules-loader`, `sync`, `validate-toolkit`) behave; repo is consistent | free |
+| Triggers | `scripts/run-evals.sh triggers [plugin]` | every skill activates on a typical request (`plugins/*/evals/trigger-*`) | ≈ $0.1 per case |
+| Quality | `scripts/run-evals.sh quality [plugin]` | key skills beat plain Claude on fixtures with planted problems, with vs without the plugin | ≈ $0.4–1.6 per case |
+
+Quality cases: `core/judge-planted-defects`, `core/debug-root-cause`, `security/owasp-ssrf-and-secrets`,
+`architect/create-tasks-from-architecture`, `ai/eval-harness-with-baseline`.
+
+Levels 2–3 use `claude plugin eval` and run real sessions on your account; `MAX_COST` (USD per plugin run)
+caps spend. Reports stay local in `plugins/*/evals/results/` (gitignored).
+
+Notes for writing cases:
+- the Skill tool input is `{"skill":"<plugin>:<name>"}`; a slash command that wraps a skill counts too;
+- `regex` graders take `pattern` + `flags` in frontmatter (no inline `(?i)`); `tool_used` with `max` needs `min: 0`;
+- `file_exists` / `target: files` see changed paths only, not contents; globs support `*`, `**`, `?`;
+- `scaffold_script` is a path; it runs in the empty workspace and `$0` locates the case dir;
+- Bash/Edit/Write must be granted with `--allow-tools`; the sandbox has no network and git may not work.
+
 ## Broader engineering coverage
 
 - `node`: NestJS lifecycle and DI, the Node.js runtime with streams/workers, TypeScript, backend reliability.

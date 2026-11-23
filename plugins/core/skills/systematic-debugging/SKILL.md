@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: Find root causes of bugs and production failures using evidence-driven reproduction, hypothesis testing, and regression prevention.
+description: Find the root cause of a bug, failing test, flaky behaviour or production failure through reproduction, hypothesis testing and a regression test, instead of patching symptoms. Use whenever the user asks to debug, fix a bug, explain why something fails or is intermittent.
 ---
 # Systematic debugging
 1. Establish impact, scope, start time, affected versions, and whether the issue is ongoing.

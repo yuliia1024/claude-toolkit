@@ -269,7 +269,10 @@ class Feature {
   shared(kind) { return path.join(this.root, kind, `${this.slug}.md`); }
   rel(p) { return path.relative(this.root, p); }
   blockFor(role, nameTest) {
-    return this.roles.get(role) || this.blocks.find((b) => nameTest.test(b)) || null;
+    // A Block Index row may link a file that does not exist (reported by 'structure'); ignore it here.
+    const indexed = this.roles.get(role);
+    if (indexed && fs.existsSync(path.join(this.dir, indexed))) return indexed;
+    return this.blocks.find((b) => nameTest.test(b)) || null;
   }
 
   markdownFiles() {

@@ -84,7 +84,7 @@ function run() {
   const targetRel = toPosix(relative(projectRoot, resolve(projectRoot, target)));
   if (targetRel.startsWith('.claude/')) return; // editing toolkit config: nothing to inject
 
-  const seenFile = join(seenRoot, `${input.session_id || 'default'}.json`);
+  const seenFile = join(seenRoot, `${String(input.session_id || 'default').replace(/[^A-Za-z0-9_-]/g, '_')}.json`);
   const seen = new Set(existsSync(seenFile) ? safeParse(readFileSync(seenFile, 'utf8'), []) : []);
 
   const fresh = [];
